@@ -24,7 +24,7 @@ exists of a key which will be replaced if it's found in the context.
 
 With context:
 
-    {:key => "value"}
+    {"key" => "value"}
 
 Examples:
 
@@ -44,7 +44,7 @@ See also the note on strings below.
 
 With context:
 
-    {:key => "value"}
+    {"key" => "value"}
 
 Examples:
     
@@ -64,9 +64,9 @@ doesn't respond to a call method, it just works like a normal substitution.
 With context:
 
     {
-      :key2 => "v1", 
-      :key2 => "v2" 
-      :ampersandize => Proc.new{|*c| c.join(" & ") }
+      "key1" => "v1", 
+      "key2" => "v2" 
+      "ampersandize" => Proc.new{|*c| c.join(" & ") }
     }
 
 Examples:

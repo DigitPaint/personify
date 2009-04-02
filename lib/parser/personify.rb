@@ -552,15 +552,15 @@ module PersonifyLanguage
   module Key1
     
     def eval(env)
-      env[self.to_sym]
+      env[self.to_s]
     end
           
     def name
       text_value
     end
     
-    def to_sym
-      self.name.downcase.to_sym
+    def to_s
+      self.name.downcase.to_s
     end
   end
 
