@@ -17,6 +17,10 @@ class ParserTest < Test::Unit::TestCase
         assert_equal "t\n1\n2", parse("t\n1\n2").eval()       
       end
   
+      should "eval empty text" do
+        assert_equal "", parse("").eval()
+      end
+  
       should "eval '[bla]' as text" do
         assert_equal "[bla]", parse("[bla]").eval()
       end
@@ -39,6 +43,11 @@ class ParserTest < Test::Unit::TestCase
         assert_equal "a var b", parse("a [VAR] b").eval("var" => "var")
         assert_equal "var\nvar", parse("[VAR]\n[VAR]").eval("var" => "var")              
       end
+      
+      should "eval simple expression with empty substitution" do
+        assert_equal "", parse("[VAR]").eval("var" => "")
+      end
+      
       should "eval expressions careless of whitespace" do
         assert_equal "k1",parse("[ K1]").eval("k1" => "k1")
         assert_equal "k1",parse("[ K1 ]").eval("k1" => "k1")
