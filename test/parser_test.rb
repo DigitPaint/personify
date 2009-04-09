@@ -1,8 +1,7 @@
 require 'test_helper'
-require 'rubygems'
-require 'treetop'
-
+require File.dirname(__FILE__) + "/../vendor/treetop/lib/treetop"
 Treetop.load "../lib/parser/personify"
+# require File.dirname(__FILE__) + "/../personify"
 
 class ParserTest < Test::Unit::TestCase
   include ParserTestHelper
@@ -15,6 +14,10 @@ class ParserTest < Test::Unit::TestCase
         assert_equal "text", parse("text").eval()
         assert_equal "t", parse("t").eval()
         assert_equal "t\n1\n2", parse("t\n1\n2").eval()       
+      end
+      
+      should "eval UTF8 text" do
+        assert_equal "financiële", parse("financiële").eval()
       end
   
       should "eval empty text" do
