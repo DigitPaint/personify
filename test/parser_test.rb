@@ -9,6 +9,25 @@ class ParserTest < Test::Unit::TestCase
     setup do
       @parser = PersonifyLanguageParser.new
     end
+    
+    context "parsing keys" do
+      should "eval [A.B] as key" do
+        assert_equal "test", parse("[A.B]").eval({"a.b" => "test"})
+      end
+      
+      should "eval [A_B] as key" do
+        assert_equal "test", parse("[A_B]").eval({"a_b" => "test"})        
+      end
+      
+      should "eval [AB_C.D] as key" do
+        assert_equal "test", parse("[AB_C.D]").eval({"ab_c.d" => "test"})        
+      end
+      
+      should "eval [AB_C.D.E] as key" do
+        assert_equal "test", parse("[AB_C.D.E]").eval({"ab_c.d.e" => "test"})        
+      end      
+    end
+
     context "parsing text" do
       should "eval text" do
         assert_equal "text", parse("text").eval()

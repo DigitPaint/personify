@@ -83,7 +83,7 @@ grammar PersonifyLanguage
   end
   
   rule key
-    [A-Z] [A-Z0-9]+ {      
+    [A-Z] [A-Z0-9._]+ {      
       def eval(env)
         env[self.to_s]
       end
