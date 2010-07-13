@@ -35,6 +35,16 @@ class ParserTest < Test::Unit::TestCase
         assert_equal "test", parse("[1.2]").eval({1 => {2 => "test"}})
       end
     end
+    
+    context "parsing strings" do
+      should "eval [\"str\"] as string" do
+        assert_equal "str", parse("[\"str\"]").eval({})
+      end
+      should "eval [str] as string" do
+        assert_equal "str", parse("[str]").eval({})
+      end
+    end
+    
     context "parsing text" do
       should "eval text" do
         assert_equal "text", parse("text").eval()
@@ -66,6 +76,7 @@ class ParserTest < Test::Unit::TestCase
         assert_equal "[BLA]", parse("[BLA]").eval()
       end
     end
+    
     context "parsing expressions" do  
       should "eval simple expression" do
         assert_equal "var", parse("[VAR]").eval("var" => "var")
