@@ -114,15 +114,20 @@ class ParserTest < Test::Unit::TestCase
         should "eval with implicit string parameters" do
           assert_equal "str", parse("[FUNC(str)]").eval("func" => Proc.new{|v| v }, "k1" => "v1", "k2" => "v2")
         end        
-        should "eval with too much parameters" do
+        should "eval with splat parameters" do
           assert_equal "v1+v2v3", parse("[FUNC(\"v1\",\"v2\",\"v3\")]").eval("func" => Proc.new{|v1,*v2| v1 + "+" + v2.join })
+        end
+        should "eval with too much parameters" do
+          assert_equal "p1p2", parse("[FUNC(\"p1\",\"p2\")]").eval("func" => Proc.new{|v1| v1 })
         end
         should "eval with alternative expression" do
           assert_equal "fb", parse("[FUNC()|\"fb\"]").eval("func" => Proc.new{ false })
           assert_equal "fb", parse("[FUNC()|\"fb\"]").eval("func" => Proc.new{ nil })
         end
+        should "eval with broken function call" do
+          assert_equal "[FUN(\"s\"]", parse("[FUN(\"s\"]").eval("func" => Proc.new{})
+        end
       end
-      
     end
   end
 end
