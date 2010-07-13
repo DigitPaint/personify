@@ -11,23 +11,30 @@ class ParserTest < Test::Unit::TestCase
     end
     
     context "parsing keys" do
-      should "eval [A.B] as key" do
-        assert_equal "test", parse("[A.B]").eval({"a.b" => "test"})
+      should "eval [A] as key" do
+        assert_equal "test", parse("[A]").eval({"a" => "test"})
       end
       
       should "eval [A_B] as key" do
         assert_equal "test", parse("[A_B]").eval({"a_b" => "test"})        
-      end
-      
-      should "eval [AB_C.D] as key" do
-        assert_equal "test", parse("[AB_C.D]").eval({"ab_c.d" => "test"})        
-      end
-      
-      should "eval [AB_C.D.E] as key" do
-        assert_equal "test", parse("[AB_C.D.E]").eval({"ab_c.d.e" => "test"})        
       end      
+      
+      should "eval [A.B] as nested key" do
+        assert_equal "test", parse("[A.B]").eval({"a.b" => "fail", "a" => {"b" => "test"}})
+      end
+            
+      should "eval [AB_C.D] as nested key" do
+        assert_equal "test", parse("[AB_C.D]").eval({"ab_c.d" => "fail", "ab_c" => {"d" => "test"}})
+      end
+            
+      should "eval [L1.L3.L4.L5.L6.L7.L8] as nested key" do
+        assert_equal "test", parse("[L1.L3.L4.L5.L6.L7.L8]").eval({"l1" => {"l2" => {"l3" => {"l4" => {"l5" => {"l6" => {"l7" => {"l8" => "test"}}}}}}}})          
+      end
+      
+      should "eval [1.2] as nested key" do
+        assert_equal "test", parse("[1.2]").eval({1 => {2 => "test"}})
+      end
     end
-
     context "parsing text" do
       should "eval text" do
         assert_equal "text", parse("text").eval()
@@ -98,6 +105,21 @@ class ParserTest < Test::Unit::TestCase
         should "eval implicit strings in alternative expression" do 
           assert_equal "str", parse("[K1|str]").eval
         end        
+      end
+      
+      context "with nested context substitutions" do
+        should "eval functions with one or more levels" do
+          assert_equal "v", parse("[LEVEL1.FUNC()]").eval({"level1" => {"func" => Proc.new{"v"}}})
+        end
+        should "eval substitution with missing key" do
+          assert_equal "[L1.L2]", parse("[L1.L2]").eval({"L1" => nil})
+          assert_equal "[L1.L2]", parse("[L1.L2]").eval({"L1" => {}})
+          assert_equal "[L1.L2]", parse("[L1.L2]").eval({"L1" => {"L2" => nil}})
+        end
+        should "eval substitution with non endpoint key" do
+          # Will just call to_s
+          assert_equal "l3v", parse("[L1.L2]").eval({"l1" => {"l2" => {"l3" => "v"}}})
+        end
       end
       
       context "with function" do
