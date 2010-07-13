@@ -85,7 +85,6 @@ class ParserTest < Test::Unit::TestCase
 
         should "eval first expression on first nonempty" do       
           assert_equal "k2", parse("[K1|K2]").eval("k2" => "k2")
-          assert_equal "k2", parse("[K1|K2]").eval("k2" => "k2")
           assert_equal "k3", parse("[K1|K2|K3]").eval("k2" => nil, "k3" => "k3")
         end     
 
