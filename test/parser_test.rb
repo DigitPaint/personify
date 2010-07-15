@@ -22,26 +22,23 @@ class ParserTest < Test::Unit::TestCase
       should "eval [A.B] as nested key" do
         assert_equal "test", parse("[A.B]").eval({"a.b" => "fail", "a" => {"b" => "test"}})
       end
-            
+                  
       should "eval [AB_C.D] as nested key" do
         assert_equal "test", parse("[AB_C.D]").eval({"ab_c.d" => "fail", "ab_c" => {"d" => "test"}})
       end
             
-      should "eval [L1.L3.L4.L5.L6.L7.L8] as nested key" do
-        assert_equal "test", parse("[L1.L3.L4.L5.L6.L7.L8]").eval({"l1" => {"l2" => {"l3" => {"l4" => {"l5" => {"l6" => {"l7" => {"l8" => "test"}}}}}}}})          
+      should "eval [L1.L2.L3.L4.L5.L6.L7.L8] as nested key" do
+        assert_equal "test", parse("[L1.L2.L3.L4.L5.L6.L7.L8]").eval({"l1" => {"l2" => {"l3" => {"l4" => {"l5" => {"l6" => {"l7" => {"l8" => "test"}}}}}}}})          
       end
       
       should "eval [1.2] as nested key" do
-        assert_equal "test", parse("[1.2]").eval({1 => {2 => "test"}})
+        assert_equal "test", parse("[1.2]").eval({"1" => {"2" => "test"}})
       end
     end
     
     context "parsing strings" do
       should "eval [\"str\"] as string" do
         assert_equal "str", parse("[\"str\"]").eval({})
-      end
-      should "eval [str] as string" do
-        assert_equal "str", parse("[str]").eval({})
       end
     end
     
@@ -119,6 +116,10 @@ class ParserTest < Test::Unit::TestCase
       end
       
       context "with nested context substitutions" do
+        should "not eval [A.B] if it isn't in the context" do
+          assert_equal "[A.B]", parse("[A.B]").eval({})
+          assert_equal "[A.B]", parse("[A.B]").eval({"a" => {"c" => "v"}})
+        end        
         should "eval functions with one or more levels" do
           assert_equal "v", parse("[LEVEL1.FUNC()]").eval({"level1" => {"func" => Proc.new{"v"}}})
         end
@@ -152,6 +153,9 @@ class ParserTest < Test::Unit::TestCase
         should "eval with too much parameters" do
           assert_equal "p1p2", parse("[FUNC(\"p1\",\"p2\")]").eval("func" => Proc.new{|v1| v1 })
         end
+        should "eval with no parameters" do 
+          assert_equal "val", parse("[FUNC()]").eval("func" => Proc.new{ "val" })
+        end
         should "eval with alternative expression" do
           assert_equal "fb", parse("[FUNC()|\"fb\"]").eval("func" => Proc.new{ false })
           assert_equal "fb", parse("[FUNC()|\"fb\"]").eval("func" => Proc.new{ nil })
@@ -160,6 +164,62 @@ class ParserTest < Test::Unit::TestCase
           assert_equal "[FUN(\"s\"]", parse("[FUN(\"s\"]").eval("func" => Proc.new{})
         end
       end
+      
+      context "with block function" do
+        setup do
+          @context = {
+            "test" => Proc.new{|block| block },
+            "test_param" => Proc.new{|param,block| param ? block : nil },
+            "test_return" => Proc.new{ "return" },
+            "true" => true,
+            "false" => nil,
+            "key" => "value",
+            "DO" => "dooo?"
+          }
+        end
+        
+        should "not accept [END] or [DO] as keys" do
+          assert_equal "[END]", parse("[END]").eval({"end" => "??"})
+          assert_equal "[DO]", parse("[DO]").eval({"do" => "??"})          
+        end
+        
+        should "eval" do
+          assert_equal "value", parse("[TEST() DO]value[END]").eval(@context)
+        end
+        
+        should "eval with parameter" do
+          assert_equal "value", parse("[TEST_PARAM(TRUE) DO]value[END]").eval(@context)
+        end
+
+        should "replace with return value" do
+          assert_equal "return", parse("[TEST_RETURN() DO]value[END]").eval(@context)
+        end
+                
+        should "eval as alternative with block parameter" do
+          assert_equal "value", parse("[UNKNOWN_KEY | TEST() DO]value[END]").eval(@context)
+        end
+        
+        should "eval with block parameter and alternative" do
+          assert_equal "value", parse("[TEST_PARAM(TRUE) DO]value[END | \"alt\"]").eval(@context)
+          assert_equal "alt", parse("[TEST_PARAM(FALSE) DO]value[END | \"alt\"]").eval(@context)      
+        end
+        
+        should "eval substitution within block parameter" do
+          assert_equal "value", parse("[TEST() DO][KEY][END]").eval(@context)
+          assert_equal "bla value bla", parse("[TEST() DO]bla [KEY] bla[END]").eval(@context)
+        end
+        
+        should "strip off \\s*\\n around DO] and [END]" do
+          assert_equal "value", parse("[TEST() DO]\s\s\nvalue[END]\n").eval(@context)
+          assert_equal "value ", parse("[TEST() DO]\s\s\nvalue [END]\n").eval(@context)
+          assert_equal "value  ", parse("[TEST() DO]\s\s\nvalue [END] ").eval(@context)
+          assert_equal " value ", parse("[TEST() DO]\s\s\n value [END]").eval(@context)
+          assert_equal "\nvalue\n", parse("[TEST() DO]\s\s\n\nvalue\n[END]").eval(@context)
+          assert_equal "\nvalue\n", parse("[TEST() DO]\s\s\n\nvalue\n[END]\n").eval(@context)
+        end
+        
+      end
+      
     end
   end
 end

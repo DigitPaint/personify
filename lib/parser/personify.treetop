@@ -1,14 +1,18 @@
 grammar PersonifyLanguage
   rule template
-    (part)* {
+    (parts_including_tail)* {
       def eval(env={})
         elements.map{|e| e.eval(env) }.join("")
       end
     }
   end
   
+  rule parts_including_tail
+    part / tail_part
+  end
+  
   rule part
-    text / substitutable / tail_part
+    text / substitutable
   end
   
   rule tail_part
@@ -32,6 +36,14 @@ grammar PersonifyLanguage
     }
   end
   
+  rule block
+    'DO' space ']' block_content '[' space 'END' <Block>
+  end
+  
+  rule block_content
+    (part)* <Literal>
+  end
+  
   rule expressions
      expression alternatives:(space "|" space expression_or_string)* {
       def eval(env)
@@ -49,43 +61,33 @@ grammar PersonifyLanguage
   end
   
   rule expression
-    function / key
+    function / key / string
   end
   
   rule expression_or_string
-    expression / string
+    expression / implicit_string
   end
   
   rule function
-    key space "(" space parameters space ")" {
-      def eval(env={})
-        if fn = key.eval(env)
-          if fn.respond_to?(:call)
-            values = parameters.eval(env)
-            fn.call(*values)
-          else
-            fn
-          end
-        end
-      end
-    }
+    key space "(" space parameters space ")" space block:(block)? <Function>
   end
-  
+      
   rule parameters 
-    expression_or_string more_expressions:(space "," space expression_or_string)* {
+    first_param:(expression_or_string)? more_expressions:(space "," space expression_or_string)* {
       def eval(env={})
         self.parameters.map{|param| param.eval(env) }
       end
       def parameters
-        [expression_or_string] + more_expressions.elements.map {|elt| elt.expression_or_string}
+        (self.first_param.respond_to?(:eval) ? [first_param] : []) + more_expressions.elements.map {|elt| elt.expression_or_string}
       end
     }
   end
   
   rule key
-    [A-Z] [A-Z0-9._]+ {      
+    !reserved ([A-Z0-9] [A-Z0-9._]*) {      
       def eval(env)
-        env[self.to_s]
+        keys = self.to_s.split(".")
+        keys.inject(env){|acc,k| acc && acc[k] }
       end
             
       def name
@@ -96,7 +98,11 @@ grammar PersonifyLanguage
         self.name.downcase.to_s
       end
     }
-  end  
+  end
+  
+  rule reserved
+   "END" / "DO"
+  end
   
   rule string
     '"' string_value '"' {
@@ -104,12 +110,10 @@ grammar PersonifyLanguage
         string_value.eval(env)
       end
     }
-    /
-    implicit_string
   end
   
   rule implicit_string
-    [^|\],)]* <Literal>
+    [^|\],)]+ <Literal>
   end
   
   rule string_value
