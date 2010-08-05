@@ -1,6 +1,6 @@
 module Personify
   # This specifies the context we can evaluate in 
-  class Context < Hash
+  class Context
     
     class << self
       def allowed_context_methods
@@ -21,8 +21,21 @@ module Personify
     end
     
     def local_assigns=(assigns)
-      self.update(assigns)
+      @local_assigns = assigns
     end
+    
+    def local_assigns
+      @local_assigns ||= {}
+    end
+    
+    def [](k)
+      self.local_assigns[k]
+    end
+    
+    def has_key?(k)
+      self.local_assigns.has_key?(k)
+    end
+      
     
     
   end
