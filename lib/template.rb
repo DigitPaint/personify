@@ -8,8 +8,9 @@ module Personify
       @template = parser.parse(template)
     end
     
-    def render(local_assigns={})
-      @template.eval(local_assigns)
+    def render(local_assigns={}, context = DefaultContext.new)
+      context.local_assigns = local_assigns
+      @template.eval(context)
     end
     
   end
