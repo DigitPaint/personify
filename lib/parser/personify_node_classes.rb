@@ -68,6 +68,18 @@ module PersonifyLanguage
     end
   end
   
+  class Logical < Treetop::Runtime::SyntaxNode
+    def eval(env)
+      fe = first_expression.eval(env)
+      ne = next_expression.eval(env)
+      
+      case operator.text_value
+        when "&&" : fe && ne
+        when "||" : fe || ne
+      end
+    end    
+  end
+  
   class Function < Treetop::Runtime::SyntaxNode
     def eval(env={})
       if env.respond_to?(:allow_method?) && env.allow_method?(key.to_s)

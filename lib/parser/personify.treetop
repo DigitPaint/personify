@@ -46,7 +46,7 @@ grammar PersonifyLanguage
   end
   
   rule expression
-    function / key / string
+    function / logical / key / string
   end
   
   rule expression_or_string
@@ -63,6 +63,12 @@ grammar PersonifyLanguage
   rule parameters 
     first_param:(expression_or_string)? more_expressions:(space "," space expression_or_string)* <Parameter>
   end
+  
+  ##################
+  # Logical  
+  
+  rule logical
+    first_expression:(function / key / string) space operator:("||" / "&&") space next_expression:(expression) <Logical>
   end
   
   ##################

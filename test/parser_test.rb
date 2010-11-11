@@ -220,6 +220,72 @@ class ParserTest < Test::Unit::TestCase
         
       end
       
+      context "with logical operators" do
+        should "eval AND operator" do
+          t = "[A && B]"
+          assert_equal "b", parse(t).eval("a" => "a", "b" => "b")
+          assert_equal t, parse(t).eval("a" => "a", "b" => nil)
+          assert_equal t, parse(t).eval("a" => nil, "b" => "b")          
+          assert_equal t, parse(t).eval("a" => nil, "b" => nil)          
+        end
+        
+        should "eval OR operator" do
+          t = "[A || B]"
+          assert_equal "a", parse(t).eval("a" => "a", "b" => "b")
+          assert_equal "a", parse(t).eval("a" => "a", "b" => nil)
+          assert_equal "b", parse(t).eval("a" => nil, "b" => "b")          
+          assert_equal t, parse(t).eval("a" => nil, "b" => nil)         
+        end
+        
+        should "eval multiple operators (a || b && c) without precedence" do
+          t = "[A || B && C]"
+          assert_equal "a", parse(t).eval("a" => "a", "b" => "b", "c" => "c")
+          assert_equal "a", parse(t).eval("a" => "a", "b" => nil, "c" => "c")          
+          assert_equal "a", parse(t).eval("a" => "a", "b" => "b", "c" => nil)                    
+          
+          assert_equal "c", parse(t).eval("a" => nil, "b" => "b", "c" => "c")
+          assert_equal t, parse(t).eval("a" => nil, "b" => nil, "c" => "c")          
+          assert_equal t, parse(t).eval("a" => nil, "b" => "b", "c" => nil)          
+        end
+        
+        # Attention we don't have support for precedence!
+        should "eval multiple operators (a && b || c) without precedence" do
+          t = "[A && B || C]"
+          assert_equal "b", parse(t).eval("a" => "a", "b" => "b", "c" => "c")
+          assert_equal "c", parse(t).eval("a" => "a", "b" => nil, "c" => "c")          
+          assert_equal "b", parse(t).eval("a" => "a", "b" => "b", "c" => nil)                    
+          
+          assert_equal t, parse(t).eval("a" => nil, "b" => "b", "c" => "c")
+          assert_equal t, parse(t).eval("a" => nil, "b" => nil, "c" => "c")          
+          assert_equal t, parse(t).eval("a" => nil, "b" => "b", "c" => nil)          
+        end
+        
+        should "eval within function parameter" do
+          t = "[FUN(A && B)]"
+          c = {"fun" => Proc.new{|v| v }}
+          
+          assert_equal "b", parse(t).eval(c.update("a" => "a", "b" => "b"))
+          assert_equal t,   parse(t).eval(c.update("a" => "a", "b" => nil))
+          assert_equal t,   parse(t).eval(c.update("a" => nil, "b" => "b"))         
+          assert_equal t,   parse(t).eval(c.update("a" => nil, "b" => nil))
+        end
+
+        should "eval with alternatives" do
+          t = "[A && B | \"no\"]"
+          
+          assert_equal "b", parse(t).eval("a" => "a", "b" => "b")
+          assert_equal "no", parse(t).eval("a" => "a", "b" => nil)
+          assert_equal "no", parse(t).eval("a" => nil, "b" => "b")          
+          assert_equal "no", parse(t).eval("a" => nil, "b" => nil)          
+        end
+        
+        should "eval with broken syntax" do
+          assert_equal "[A &&]", parse("[A &&]").eval("a" => "1")
+          assert_equal "[A ||]", parse("[A ||]").eval("a" => "1")          
+          assert_equal "[|| A]", parse("[|| A]").eval("a" => "1")                    
+          assert_equal "[&& A]", parse("[&& A]").eval("a" => "1")          
+        end
+      end
     end
   end
 end
