@@ -1,4 +1,63 @@
 module PersonifyLanguage
+  class Template < Treetop::Runtime::SyntaxNode
+    def eval(env={})
+      elements.map{|e| e.eval(env) }.join("")
+    end    
+  end
+
+  class TailPart  < Treetop::Runtime::SyntaxNode
+    def eval(env)
+      "[" + part.eval(env)
+    end
+  end
+  
+  class Substitutable < Treetop::Runtime::SyntaxNode
+    def eval(env)
+      # puts expressions.inspect
+      last_eval = expressions.eval(env)
+      if last_eval.nil?
+        text_value
+      else
+        last_eval
+      end
+    end    
+  end
+  
+  class Expressions < Treetop::Runtime::SyntaxNode
+    def eval(env)
+      last_value = nil
+      expressions.detect do |exp|
+        last_value = exp.eval(env)
+      end
+      last_value
+    end
+    
+    def expressions
+      [expression] + alternatives.elements.map {|elt| elt.expression_or_string}
+    end    
+  end
+  
+  class Key < Treetop::Runtime::SyntaxNode
+    def eval(env)
+      keys = self.to_s.split(".")
+      keys.inject(env){|acc,k| acc && acc[k] }
+    end
+          
+    def name
+      text_value
+    end
+    
+    def to_s
+      self.name.downcase.to_s
+    end    
+  end
+  
+  class PString < Treetop::Runtime::SyntaxNode
+    def eval(env={})
+      string_value.eval(env)
+    end    
+  end
+  
   class Literal < Treetop::Runtime::SyntaxNode
     def eval(env={})
       text_value
@@ -31,6 +90,15 @@ module PersonifyLanguage
       values << self.block.eval(env) if self.block.kind_of?(Block)
       values    
     end     
+  end
+  
+  class Parameter < Treetop::Runtime::SyntaxNode
+    def eval(env={})
+      self.parameters.map{|param| param.eval(env) }
+    end
+    def parameters
+      (self.first_param.respond_to?(:eval) ? [first_param] : []) + more_expressions.elements.map {|elt| elt.expression_or_string}
+    end    
   end
   
   class Block < Treetop::Runtime::SyntaxNode

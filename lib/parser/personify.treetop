@@ -1,10 +1,10 @@
 grammar PersonifyLanguage
+
+  ##################
+  # Template parts
+  
   rule template
-    (parts_including_tail)* {
-      def eval(env={})
-        elements.map{|e| e.eval(env) }.join("")
-      end
-    }
+    (parts_including_tail)* <Template>
   end
   
   rule parts_including_tail
@@ -16,25 +16,19 @@ grammar PersonifyLanguage
   end
   
   rule tail_part
-    '[' part {
-      def eval(env)
-        "[" + part.eval(env)
-      end
-    }
+    '[' part <TailPart>
   end
 
+  
+  ##################
+  # Substitutable
+    
   rule substitutable
-    '[' space expressions space ']' {
-      def eval(env)
-        last_eval = expressions.eval(env)
-        if last_eval.nil?
-          text_value
-        else
-          last_eval
-        end
-      end
-    }
+    '[' space expressions space ']' <Substitutable>
   end
+  
+  ##################
+  # Blocks
   
   rule block
     'DO' space ']' block_content '[' space 'END' <Block>
@@ -44,20 +38,11 @@ grammar PersonifyLanguage
     (part)* <Literal>
   end
   
+  ##################
+  # Expressions
+  
   rule expressions
-     expression alternatives:(space "|" space expression_or_string)* {
-      def eval(env)
-        last_value = nil
-        expressions.detect do |exp|
-          last_value = exp.eval(env)
-        end
-        last_value
-      end
-      
-      def expressions
-        [expression] + alternatives.elements.map {|elt| elt.expression_or_string}
-      end
-    }
+     expression alternatives:(space "|" space expression_or_string)* <Expressions>
   end
   
   rule expression
@@ -68,48 +53,34 @@ grammar PersonifyLanguage
     expression / implicit_string
   end
   
+  ##################
+  # Functions  
+  
   rule function
     key space "(" space parameters space ")" space block:(block)? <Function>
   end
       
   rule parameters 
-    first_param:(expression_or_string)? more_expressions:(space "," space expression_or_string)* {
-      def eval(env={})
-        self.parameters.map{|param| param.eval(env) }
-      end
-      def parameters
-        (self.first_param.respond_to?(:eval) ? [first_param] : []) + more_expressions.elements.map {|elt| elt.expression_or_string}
-      end
-    }
+    first_param:(expression_or_string)? more_expressions:(space "," space expression_or_string)* <Parameter>
+  end
   end
   
+  ##################
+  # Keys  
+  
   rule key
-    !reserved ([A-Z0-9] [A-Z0-9._]*) {      
-      def eval(env)
-        keys = self.to_s.split(".")
-        keys.inject(env){|acc,k| acc && acc[k] }
-      end
-            
-      def name
-        text_value
-      end
-      
-      def to_s
-        self.name.downcase.to_s
-      end
-    }
+    !reserved ([A-Z0-9] [A-Z0-9._]*) <Key>      
   end
   
   rule reserved
    "END" / "DO"
   end
   
+  ##################
+  # Literals
+  
   rule string
-    '"' string_value '"' {
-      def eval(env={})
-        string_value.eval(env)
-      end
-    }
+    '"' string_value '"' <PString>
   end
   
   rule implicit_string
