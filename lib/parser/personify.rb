@@ -5,12 +5,6 @@ module PersonifyLanguage
     @root || :template
   end
 
-  module Template0
-    def eval(env={})
-      elements.map{|e| e.eval(env) }.join("")
-    end
-  end
-
   def _nt_template
     start_index = index
     if node_cache[:template].has_key?(index)
@@ -28,8 +22,7 @@ module PersonifyLanguage
         break
       end
     end
-    r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
-    r0.extend(Template0)
+    r0 = instantiate_node(Template,input, i0...index, s0)
 
     node_cache[:template][start_index] = r0
 
@@ -96,12 +89,6 @@ module PersonifyLanguage
     end
   end
 
-  module TailPart1
-    def eval(env)
-      "[" + part.eval(env)
-    end
-  end
-
   def _nt_tail_part
     start_index = index
     if node_cache[:tail_part].has_key?(index)
@@ -124,9 +111,8 @@ module PersonifyLanguage
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(TailPart,input, i0...index, s0)
       r0.extend(TailPart0)
-      r0.extend(TailPart1)
     else
       self.index = i0
       r0 = nil
@@ -150,17 +136,6 @@ module PersonifyLanguage
       elements[3]
     end
 
-  end
-
-  module Substitutable1
-    def eval(env)
-      last_eval = expressions.eval(env)
-      if last_eval.nil?
-        text_value
-      else
-        last_eval
-      end
-    end
   end
 
   def _nt_substitutable
@@ -203,9 +178,8 @@ module PersonifyLanguage
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(Substitutable,input, i0...index, s0)
       r0.extend(Substitutable0)
-      r0.extend(Substitutable1)
     else
       self.index = i0
       r0 = nil
@@ -351,20 +325,6 @@ module PersonifyLanguage
     end
   end
 
-  module Expressions2
-    def eval(env)
-      last_value = nil
-      expressions.detect do |exp|
-        last_value = exp.eval(env)
-      end
-      last_value
-    end
-    
-    def expressions
-      [expression] + alternatives.elements.map {|elt| elt.expression_or_string}
-    end
-  end
-
   def _nt_expressions
     start_index = index
     if node_cache[:expressions].has_key?(index)
@@ -417,9 +377,8 @@ module PersonifyLanguage
       s0 << r2
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(Expressions,input, i0...index, s0)
       r0.extend(Expressions1)
-      r0.extend(Expressions2)
     else
       self.index = i0
       r0 = nil
@@ -443,16 +402,21 @@ module PersonifyLanguage
     if r1
       r0 = r1
     else
-      r2 = _nt_key
+      r2 = _nt_logical
       if r2
         r0 = r2
       else
-        r3 = _nt_string
+        r3 = _nt_key
         if r3
           r0 = r3
         else
-          self.index = i0
-          r0 = nil
+          r4 = _nt_string
+          if r4
+            r0 = r4
+          else
+            self.index = i0
+            r0 = nil
+          end
         end
       end
     end
@@ -616,15 +580,6 @@ module PersonifyLanguage
     end
   end
 
-  module Parameters2
-    def eval(env={})
-      self.parameters.map{|param| param.eval(env) }
-    end
-    def parameters
-      (self.first_param.respond_to?(:eval) ? [first_param] : []) + more_expressions.elements.map {|elt| elt.expression_or_string}
-    end
-  end
-
   def _nt_parameters
     start_index = index
     if node_cache[:parameters].has_key?(index)
@@ -682,9 +637,8 @@ module PersonifyLanguage
       s0 << r3
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(Parameter,input, i0...index, s0)
       r0.extend(Parameters1)
-      r0.extend(Parameters2)
     else
       self.index = i0
       r0 = nil
@@ -695,26 +649,113 @@ module PersonifyLanguage
     return r0
   end
 
+  module Logical0
+    def first_expression
+      elements[0]
+    end
+
+    def space
+      elements[1]
+    end
+
+    def operator
+      elements[2]
+    end
+
+    def space
+      elements[3]
+    end
+
+    def next_expression
+      elements[4]
+    end
+  end
+
+  def _nt_logical
+    start_index = index
+    if node_cache[:logical].has_key?(index)
+      cached = node_cache[:logical][index]
+      @index = cached.interval.end if cached
+      return cached
+    end
+
+    i0, s0 = index, []
+    i1 = index
+    r2 = _nt_function
+    if r2
+      r1 = r2
+    else
+      r3 = _nt_key
+      if r3
+        r1 = r3
+      else
+        r4 = _nt_string
+        if r4
+          r1 = r4
+        else
+          self.index = i1
+          r1 = nil
+        end
+      end
+    end
+    s0 << r1
+    if r1
+      r5 = _nt_space
+      s0 << r5
+      if r5
+        i6 = index
+        if input.index("||", index) == index
+          r7 = instantiate_node(SyntaxNode,input, index...(index + 2))
+          @index += 2
+        else
+          terminal_parse_failure("||")
+          r7 = nil
+        end
+        if r7
+          r6 = r7
+        else
+          if input.index("&&", index) == index
+            r8 = instantiate_node(SyntaxNode,input, index...(index + 2))
+            @index += 2
+          else
+            terminal_parse_failure("&&")
+            r8 = nil
+          end
+          if r8
+            r6 = r8
+          else
+            self.index = i6
+            r6 = nil
+          end
+        end
+        s0 << r6
+        if r6
+          r9 = _nt_space
+          s0 << r9
+          if r9
+            r10 = _nt_expression
+            s0 << r10
+          end
+        end
+      end
+    end
+    if s0.last
+      r0 = instantiate_node(Logical,input, i0...index, s0)
+      r0.extend(Logical0)
+    else
+      self.index = i0
+      r0 = nil
+    end
+
+    node_cache[:logical][start_index] = r0
+
+    return r0
+  end
+
   module Key0
   end
 
   module Key1
-  end
-
-  module Key2
-    
-    def eval(env)
-      keys = self.to_s.split(".")
-      keys.inject(env){|acc,k| acc && acc[k] }
-    end
-          
-    def name
-      text_value
-    end
-    
-    def to_s
-      self.name.downcase.to_s
-    end
   end
 
   def _nt_key
@@ -774,9 +815,8 @@ module PersonifyLanguage
       s0 << r3
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(Key,input, i0...index, s0)
       r0.extend(Key1)
-      r0.extend(Key2)
     else
       self.index = i0
       r0 = nil
@@ -833,12 +873,6 @@ module PersonifyLanguage
 
   end
 
-  module String1
-    def eval(env={})
-      string_value.eval(env)
-    end
-  end
-
   def _nt_string
     start_index = index
     if node_cache[:string].has_key?(index)
@@ -871,9 +905,8 @@ module PersonifyLanguage
       end
     end
     if s0.last
-      r0 = instantiate_node(SyntaxNode,input, i0...index, s0)
+      r0 = instantiate_node(PString,input, i0...index, s0)
       r0.extend(String0)
-      r0.extend(String1)
     else
       self.index = i0
       r0 = nil
