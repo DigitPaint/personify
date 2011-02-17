@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'shoulda'
-require File.dirname(__FILE__) + "/../personify"
+require File.dirname(__FILE__) + "/../lib/personify"
 
 require 'test/unit'
 

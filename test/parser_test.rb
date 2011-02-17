@@ -1,6 +1,6 @@
 require 'test_helper'
 require File.dirname(__FILE__) + "/../vendor/treetop/lib/treetop"
-Treetop.load "../lib/parser/personify"
+Treetop.load "../lib/personify/parser/personify"
 # require File.dirname(__FILE__) + "/../personify"
 
 class ParserTest < Test::Unit::TestCase
