@@ -165,3 +165,8 @@ as an alternative. Strings don't necessarily need to be quoted as long
 as they don't contain any of these characters: "]),|
 
 Strings cannot ever contain double qoutes (").
+
+
+Copyright
+---------
+Copyright (c) 2011 Digitpaint, Flurin Egger. See LICENSE for details.
