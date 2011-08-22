@@ -132,7 +132,8 @@ class ParserTest < Test::Unit::TestCase
         end
         should "eval substitution with non endpoint key" do
           # Will just call to_s
-          assert_equal "l3v", parse("[L1.L2]").eval({"l1" => {"l2" => {"l3" => "v"}}})
+          p = {"l3" => "v"}
+          assert_equal p.to_s, parse("[L1.L2]").eval({"l1" => {"l2" => p}})
         end
       end
       
@@ -153,7 +154,7 @@ class ParserTest < Test::Unit::TestCase
           assert_equal "v1+v2v3", parse("[FUNC(\"v1\",\"v2\",\"v3\")]").eval("func" => Proc.new{|v1,*v2| v1 + "+" + v2.join })
         end
         should "eval with too much parameters" do
-          assert_equal "p1p2", parse("[FUNC(\"p1\",\"p2\")]").eval("func" => Proc.new{|v1| v1 })
+          assert_equal "p1", parse("[FUNC(\"p1\",\"p2\")]").eval("func" => Proc.new{|v1| v1 })
         end
         should "eval with no parameters" do 
           assert_equal "val", parse("[FUNC()]").eval("func" => Proc.new{ "val" })

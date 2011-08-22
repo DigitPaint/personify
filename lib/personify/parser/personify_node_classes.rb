@@ -89,7 +89,11 @@ module PersonifyLanguage
       end
       
       if fn && fn.respond_to?(:call)
-        fn.call(*self.function_parameters(env))
+        params = self.function_parameters(env)
+        if fn.arity >= 0
+          params = params[0,fn.arity]
+        end
+        fn.call(*params)
       else
         fn
       end
