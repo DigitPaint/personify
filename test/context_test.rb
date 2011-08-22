@@ -1,7 +1,10 @@
-require File.dirname(__FILE__) + '/test_helper'
+# coding: utf-8
 require 'treetop'
+require File.join(File.expand_path(File.dirname(__FILE__)), "test_helper") 
 Treetop.load  File.dirname(__FILE__) + "/../lib/personify/parser/personify"
-# require File.dirname(__FILE__) + "/../personify"
+
+# Use this if you want to test the generated parser
+# require_relative  "../personify"
 
 class ContextTest < Test::Unit::TestCase
   include ParserTestHelper
