@@ -1,5 +1,4 @@
 # coding: utf-8
-require 'treetop'
 require File.join(File.expand_path(File.dirname(__FILE__)), "test_helper") 
 Treetop.load  File.dirname(__FILE__) + "/../lib/personify/parser/personify"
 
