@@ -1,5 +1,4 @@
-require File.dirname(__FILE__) + "/../vendor/treetop/lib/treetop"
-
+require 'treetop'
 require '../lib/parser/personify_node_classes'
 require '../lib/context'
 Treetop.load "../lib/parser/personify"

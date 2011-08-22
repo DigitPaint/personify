@@ -1,6 +1,6 @@
-require 'test_helper'
-require File.dirname(__FILE__) + "/../vendor/treetop/lib/treetop"
-Treetop.load "../lib/personify/parser/personify"
+require File.dirname(__FILE__) + '/test_helper'
+require 'treetop'
+Treetop.load  File.dirname(__FILE__) + "/../lib/personify/parser/personify"
 # require File.dirname(__FILE__) + "/../personify"
 
 class ContextTest < Test::Unit::TestCase

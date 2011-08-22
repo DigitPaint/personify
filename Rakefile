@@ -10,6 +10,7 @@ begin
     gem.email = "flurin@digitpaint.nl"
     gem.homepage = "http://github.com/digitpaint/personify"
     gem.authors = ["Flurin Egger"]
+    gem.add_dependency "treetop", "~> 1.4.0"
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
