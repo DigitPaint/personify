@@ -74,8 +74,8 @@ module PersonifyLanguage
       ne = next_expression.eval(env)
       
       case operator.text_value
-        when "&&" : fe && ne
-        when "||" : fe || ne
+        when "&&" then fe && ne
+        when "||" then fe || ne
       end
     end    
   end
