@@ -30,6 +30,20 @@ class ContextTest < Test::Unit::TestCase
       end
     end
     
+    should "have the context methods in the #allowed_methods" do
+      assert @c.allowed_context_methods.include?(:true)
+      assert @c.allowed_context_methods.include?(:block)
+      assert !@c.allowed_context_methods.include?(:do_not_call)
+    end
+    
+    should "respond true to #allow_method? of context method" do
+      assert @c.allow_method?(:true)
+      assert @c.allow_method?("true")
+      assert @c.allow_method?(:block)
+      assert @c.allow_method?("block")
+      assert !@c.allow_method?(:do_not_call)
+      assert !@c.allow_method?("do_not_call")
+    end
     
     should "allow setting of local_assigns" do
       @i = @c.new
