@@ -207,7 +207,7 @@ class ParserTest < Test::Unit::TestCase
           assert_equal "alt", parse("[TEST_PARAM(FALSE) DO]value[END | \"alt\"]").eval(@context)      
         end
         
-        should "eval substitution within block parameter" do
+        should_eventually "eval substitution within block parameter" do
           assert_equal "value", parse("[TEST() DO][KEY][END]").eval(@context)
           assert_equal "bla value bla", parse("[TEST() DO]bla [KEY] bla[END]").eval(@context)
         end

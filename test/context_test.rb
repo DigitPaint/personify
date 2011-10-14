@@ -85,10 +85,10 @@ class ContextTest < Test::Unit::TestCase
         assert_equal "[IF(\"out\")]", parse("[IF(\"out\")]").eval(@context)
       end
       
-      should "return nil with more than 2 arguments" do
-        assert_equal "[IF(\"out\", \"2\", \"3\")]", parse("[IF(\"out\", \"2\", \"3\")]").eval(@context)
-        assert_equal "test", parse("[IF(\"out\", \"2\", \"3\") | \"test\"]").eval(@context)        
-        assert_equal "[IF(\"out\",\"2\") DO]3[END]", parse("[IF(\"out\",\"2\") DO]3[END]").eval(@context)
+      should "discard any argument after the 2nd" do
+        assert_equal "2", parse("[IF(\"out\", \"2\", \"3\")]").eval(@context)
+        assert_equal "2", parse("[IF(\"out\", \"2\", \"3\") | \"test\"]").eval(@context)        
+        assert_equal "2", parse("[IF(\"out\",\"2\") DO]3[END]").eval(@context)
       end
       
       should "return second argument if first argument is not empty" do
