@@ -778,7 +778,7 @@ module PersonifyLanguage
     s0 << r1
     if r1
       i3, s3 = index, []
-      if input.index(Regexp.new('[A-Z0-9]',nil,'u'), index) == index
+      if input.index(Regexp.new('[A-Z0-9]',nil,'n'), index) == index
         next_character = index + input[index..-1].match(/\A(.)/um).end(1)
         r4 = instantiate_node(SyntaxNode,input, index...next_character)
         @index = next_character
@@ -789,7 +789,7 @@ module PersonifyLanguage
       if r4
         s5, i5 = [], index
         loop do
-          if input.index(Regexp.new('[A-Z0-9._]',nil,'u'), index) == index
+          if input.index(Regexp.new('[A-Z0-9._]',nil,'n'), index) == index
             next_character = index + input[index..-1].match(/\A(.)/um).end(1)
             r6 = instantiate_node(SyntaxNode,input, index...next_character)
             @index = next_character
@@ -927,7 +927,7 @@ module PersonifyLanguage
 
     s0, i0 = [], index
     loop do
-      if input.index(Regexp.new('[^|\\],)]',nil,'u'), index) == index
+      if input.index(Regexp.new('[^|\\],)]',nil,'n'), index) == index
         next_character = index + input[index..-1].match(/\A(.)/um).end(1)
         r1 = instantiate_node(SyntaxNode,input, index...next_character)
         @index = next_character
@@ -962,7 +962,7 @@ module PersonifyLanguage
 
     s0, i0 = [], index
     loop do
-      if input.index(Regexp.new('[^"]',nil,'u'), index) == index
+      if input.index(Regexp.new('[^"]',nil,'n'), index) == index
         next_character = index + input[index..-1].match(/\A(.)/um).end(1)
         r1 = instantiate_node(SyntaxNode,input, index...next_character)
         @index = next_character
@@ -994,7 +994,7 @@ module PersonifyLanguage
     end
 
     i0, s0 = index, []
-    if input.index(Regexp.new('[^\\[]',nil,'u'), index) == index
+    if input.index(Regexp.new('[^\\[]',nil,'n'), index) == index
       next_character = index + input[index..-1].match(/\A(.)/um).end(1)
       r1 = instantiate_node(SyntaxNode,input, index...next_character)
       @index = next_character
@@ -1005,7 +1005,7 @@ module PersonifyLanguage
     if r1
       s2, i2 = [], index
       loop do
-        if input.index(Regexp.new('[^\\[]',nil,'u'), index) == index
+        if input.index(Regexp.new('[^\\[]',nil,'n'), index) == index
           next_character = index + input[index..-1].match(/\A(.)/um).end(1)
           r3 = instantiate_node(SyntaxNode,input, index...next_character)
           @index = next_character
@@ -1044,7 +1044,7 @@ module PersonifyLanguage
 
     s0, i0 = [], index
     loop do
-      if input.index(Regexp.new('[ \\n]',nil,'u'), index) == index
+      if input.index(Regexp.new('[ \\n]',nil,'n'), index) == index
         next_character = index + input[index..-1].match(/\A(.)/um).end(1)
         r1 = instantiate_node(SyntaxNode,input, index...next_character)
         @index = next_character

@@ -92,8 +92,8 @@ module Treetop
       end
     end
 
-    Spec::Example::ExampleGroupFactory.register(:compiler, self)
-    Spec::Example::ExampleGroupFactory.register(:runtime, self)
+    Spec::Example::ExampleGroupFactoryGirl.register(:compiler, self)
+    Spec::Example::ExampleGroupFactoryGirl.register(:runtime, self)
   end
 end
 
