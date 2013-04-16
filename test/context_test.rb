@@ -1,7 +1,9 @@
-require 'test_helper'
-require File.dirname(__FILE__) + "/../vendor/treetop/lib/treetop"
-Treetop.load "../lib/personify/parser/personify"
-# require File.dirname(__FILE__) + "/../personify"
+# coding: utf-8
+require File.join(File.expand_path(File.dirname(__FILE__)), "test_helper") 
+Treetop.load  File.dirname(__FILE__) + "/../lib/personify/parser/personify"
+
+# Use this if you want to test the generated parser
+# require_relative  "../personify"
 
 class ContextTest < Test::Unit::TestCase
   include ParserTestHelper
@@ -28,6 +30,20 @@ class ContextTest < Test::Unit::TestCase
       end
     end
     
+    should "have the context methods in the #allowed_methods" do
+      assert @c.allowed_context_methods.include?(:true)
+      assert @c.allowed_context_methods.include?(:block)
+      assert !@c.allowed_context_methods.include?(:do_not_call)
+    end
+    
+    should "respond true to #allow_method? of context method" do
+      assert @c.allow_method?(:true)
+      assert @c.allow_method?("true")
+      assert @c.allow_method?(:block)
+      assert @c.allow_method?("block")
+      assert !@c.allow_method?(:do_not_call)
+      assert !@c.allow_method?("do_not_call")
+    end
     
     should "allow setting of local_assigns" do
       @i = @c.new
@@ -83,10 +99,10 @@ class ContextTest < Test::Unit::TestCase
         assert_equal "[IF(\"out\")]", parse("[IF(\"out\")]").eval(@context)
       end
       
-      should "return nil with more than 2 arguments" do
-        assert_equal "[IF(\"out\", \"2\", \"3\")]", parse("[IF(\"out\", \"2\", \"3\")]").eval(@context)
-        assert_equal "test", parse("[IF(\"out\", \"2\", \"3\") | \"test\"]").eval(@context)        
-        assert_equal "[IF(\"out\",\"2\") DO]3[END]", parse("[IF(\"out\",\"2\") DO]3[END]").eval(@context)
+      should "discard any argument after the 2nd" do
+        assert_equal "2", parse("[IF(\"out\", \"2\", \"3\")]").eval(@context)
+        assert_equal "2", parse("[IF(\"out\", \"2\", \"3\") | \"test\"]").eval(@context)        
+        assert_equal "2", parse("[IF(\"out\",\"2\") DO]3[END]").eval(@context)
       end
       
       should "return second argument if first argument is not empty" do

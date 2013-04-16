@@ -1,8 +1,17 @@
-require File.dirname(__FILE__) + '/../vendor/treetop/lib/treetop'
-require File.dirname(__FILE__) + '/personify/parser/personify_node_classes'
-require File.dirname(__FILE__) + '/personify/parser/personify'
-require File.dirname(__FILE__) + '/personify/template'
-require File.dirname(__FILE__) + '/personify/context'
+require 'treetop'
+
+unless Kernel.respond_to?(:require_relative)
+  module Kernel
+    def require_relative(path)
+      require File.join(File.dirname(caller[0]), path.to_str)
+    end
+  end
+end
+
+require_relative 'personify/parser/personify_node_classes'
+require_relative 'personify/parser/personify'
+require_relative 'personify/template'
+require_relative 'personify/context'
 
 module Personify
 end

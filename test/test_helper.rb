@@ -1,6 +1,7 @@
 require 'rubygems'
+require 'treetop'
 require 'shoulda'
-require File.dirname(__FILE__) + "/../lib/personify"
+require File.join(File.expand_path(File.dirname(__FILE__)), "../lib/personify") 
 
 require 'test/unit'
 

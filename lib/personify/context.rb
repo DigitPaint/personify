@@ -8,11 +8,11 @@ module Personify
       end
       
       def context_method(method_name)
-        self.allowed_context_methods << method_name.to_s if self.instance_methods.include?(method_name.to_s)
+        self.allowed_context_methods << method_name.to_sym if self.instance_methods.include?(method_name.to_s) || self.instance_methods.include?(method_name.to_sym)
       end
-      
+
       def allow_method?(method_name)
-        self.allowed_context_methods.include?(method_name.to_s)
+        self.allowed_context_methods.include?(method_name.to_sym)
       end
     end
 
