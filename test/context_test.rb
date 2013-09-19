@@ -131,6 +131,11 @@ class ContextTest < Test::Unit::TestCase
         assert_equal "other", parse(templ).eval(@context)        
       end
       
+      should "ignore links with brackets" do
+        assert_equal "http://test.dev?id=1", parse("[IF(\"true\") DO]http://test.dev?id=1[END | \"\"]").eval(@context)
+        assert_equal "http://test.dev?ids[]=1,2", parse("[IF(\"true\") DO]http://test.dev?ids[]=1,2[END | \"\"]").eval(@context)
+      end
+      
     end
     
   end
